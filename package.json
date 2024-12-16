@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@layui/layui-vue": "^2.21.1"
+  }
+}
