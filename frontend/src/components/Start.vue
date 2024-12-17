@@ -1,54 +1,33 @@
 <template>
   <div class="window">
     <div class="init">
-      <lay-button id = "start_button" @click="openNewConnection"><lay-icon type="layui-icon-addition"></lay-icon> 新连接</lay-button>
+      <el-button type="info" id = "newConButton" @click="createConnection = true">新建连接</el-button>
       <br>
-      <lay-button id = "start_button" @click="openSettings" ><lay-icon type="layui-icon-set-sm"></lay-icon> 设置</lay-button>
+      <el-button type="info">设置</el-button>
     </div>
   </div>
 
-  <div id = "newConnection" style="display: none">
-  </div>
+
+  <el-dialog
+      v-model="createConnection"
+      title="新建连接"
+      width="60%"
+      height="60%"
+      :before-close="handleClose"
+      top="20vh"
+  >
+    <New-Connection/>
+  </el-dialog>
+
 </template>
 
 <script setup>
-import {layer} from "@layui/layui-vue";
+import { ref } from 'vue'
+import { ElMessageBox } from 'element-plus'
+import NewConnection from "./NewConnection.vue";
 
-const openNewConnection = function() {
-  layer.open({
-    type: 1,
-    title: "新建连接",
-    area: ['70%','70%'],
-    content: "http://www.layui-vue.com"
-  })
-}
-
-  const openSettings = function() {
-    console.log("弹窗")
-    layer.open({
-      type: "iframe",
-      title: "远程页面",
-      area: ['90%','90%'],
-      content: "http://www.layui-vue.com"
-    })
-}
-
-// export default {
-//   methods: {
-//     openIframe() {
-//       layer.open({
-//         type: "iframe",
-//         title: "远程页面",
-//         area: ['90%','90%'],
-//         content: "http://www.layui-vue.com"
-//       })
-//     }
-//   }
-// }
+const createConnection = ref(false)
 </script>
 
 <style>
-#start_button{
-
-}
 </style>

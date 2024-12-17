@@ -6,6 +6,10 @@ import start from './components/Start.vue'</script>
 </template>
 
 <style>
+.el-menu--horizontal {
+  --el-menu-horizontal-height: 30px;
+}
+
 #logo {
   display: block;
   width: 50%;

@@ -1,6 +1,10 @@
-import App from './App.vue'
+// main.ts
 import { createApp } from 'vue'
-import Layui from '@layui/layui-vue'
-import '@layui/layui-vue/lib/index.css'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import App from './App.vue'
 
-createApp(App).use(Layui).mount('#app')
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.mount('#app')
