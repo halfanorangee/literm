@@ -1,7 +1,9 @@
 <template>
   <div class="window">
     <div class="init">
-      <el-button type="info" id = "newConButton" @click="createConnection = true">新建连接</el-button>
+      <el-button type="info" id = "newConButton" @click="createConnection = true">
+        <el-icon></el-icon>
+        新建连接</el-button>
       <br>
       <el-button type="info">设置</el-button>
     </div>
