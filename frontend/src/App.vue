@@ -2,24 +2,21 @@
 </script>
 
 <template>
+  <router-view></router-view>
   <el-row class="tac">
       <el-menu
-          default-active="2"
           class="el-menu-vertical-demo"
           @open="handleOpen"
           @close="handleClose"
       >
-        <el-menu-item index="1">
-          <el-icon><icon-menu /></el-icon>
-          <span>Navigator Two</span>
+        <el-menu-item index="1" id = "index-tab">
+          <el-icon><Management /></el-icon>
         </el-menu-item>
-        <el-menu-item index="2" disabled>
-          <el-icon><document /></el-icon>
-          <span>Navigator Three</span>
+        <el-menu-item index="2" id = "index-tab">
+          <el-icon><Tools /></el-icon>
         </el-menu-item>
-        <el-menu-item index="3">
+        <el-menu-item index="3" id = "index-tab">
           <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
         </el-menu-item>
       </el-menu>
   </el-row>
@@ -29,6 +26,13 @@
 <style>
 .el-menu--horizontal {
   --el-menu-horizontal-height: 30px;
+}
+
+#index-tab {
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 40px;
+  height: 40px;
 }
 
 #logo {
