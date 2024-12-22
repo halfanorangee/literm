@@ -20,7 +20,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup() error {
 	var err error
-	a.db, err = sql.Open("sqlite3", "./menuitems.sqlite")
+	a.db, err = sql.Open("sqlite3", "./literm")
 	if err != nil {
 		return err
 	}
@@ -28,15 +28,18 @@ func (a *App) startup() error {
 
 	// 创建示例表
 	createTableQuery := `
-	CREATE TABLE IF NOT EXISTS conn_collection  (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		conn_name TEXT NOT NULL,
-		conn_ip TEXT NOT NULL,
-		conn_port INTEGER NOT NULL,
-		user_name TEXT,
-		password TEXT,
-		key TEXT
-	);
+			create table if not exists conn_info
+		(
+			id            INTEGER
+				primary key autoincrement,
+			conn_name     TEXT,
+			conn_ip       TEXT,
+			conn_port     INTEGER,
+			user_name     TEXT,
+			password      TEXT,
+			key           TEXT,
+			collection_id INTEGER
+		);
 	`
 	_, err = a.db.Exec(createTableQuery)
 	if err != nil {
@@ -51,3 +54,7 @@ func (a *App) startup() error {
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
+
+//func getConnInfos() []goFile.ConnInfo {
+//	return goFile.QueryConnInfo()
+//}
