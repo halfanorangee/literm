@@ -1,20 +1,39 @@
 <template>
   <div class="wrapper">
     <div class="collection-list-side">
-      <div class="collection-head-class" id="collection-head-id">
-        集合列表
-        <el-button class="create-button" circle >
+      <div class="collection-line-class">
+        <span>
+          集合列表
+        <el-button style="border-width: 0; background: none; float: right" circle >
           <el-icon><CirclePlusFilled /></el-icon>
         </el-button>
+        </span>
       </div>
-      <div class="collection-list-class">
-        <div v-for="connInfo in connInfos" :key="connInfo.ID">
-          <el-button class="collection-button" circle>
-            <el-icon><Collection /></el-icon>
-          </el-button>
-          <span class="collection-name">{{ connInfo.ConnName }}</span>
-        </div>
-      </div>
+      <el-menu  id="collection-content-id">
+        <template v-for="connInfo in connInfos">
+          <el-menu-item :index="connInfo.ID">
+            <span>
+
+            </span>
+            <el-icon><Connection /></el-icon>
+            {{ connInfo.ConnName }}
+            <el-popover
+                placement="bottom"
+                title="Title"
+                :width="200"
+                trigger="click"
+                content="this is content, this is content, this is content"
+            >
+              <template #reference>
+                <el-button class="optin-button" style="border-width: 0; float: right" >
+                  <el-icon><MoreFilled /></el-icon>
+                </el-button>
+              </template>
+            </el-popover>
+          </el-menu-item>
+
+        </template>
+      </el-menu>
     </div>
   </div>
 </template>
@@ -47,21 +66,16 @@ onMounted(async () => {
   height: 100vh; /* 让容器占据整个视口高度 */
 }
 
-.collection-head-class {
-  line-height: 30px;
-  padding: 5px;
-  height: 30px;
-  border: solid lightgray;
+.collection-list-side {
+  background-color: #ffffff;
+  overflow-y: auto;
 }
 
-#collection-head-id {
-  margin-bottom: 5px;
-}
-
-.create-button {
-  border-width: 0;
-  padding: 5px;
-  float: right;
-
+.collection-line-class {
+  flex-grow: 1;
+  height: 40px;
+  line-height: 40px;
+  padding-left: 10px;
+  border-bottom: 1px solid #e6e6e6;
 }
 </style>

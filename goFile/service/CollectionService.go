@@ -9,6 +9,11 @@ import (
 
 type CollectionService struct{}
 
+type ConnCollection struct {
+	ID             int16  `db:"id"`
+	CollectionName string `db:"collection"`
+}
+
 type ConnInfo struct {
 	ID            int16          `db:"id"`
 	Collection_ID sql.NullInt16  `db:"collection_id"`
@@ -45,16 +50,12 @@ func (s *CollectionService) QueryConnInfos() []*ConnInfo {
 	if err != nil {
 		log.Println(err)
 	}
-	//for _, connInfo := range connInfos {
-	//	if connInfo.Collection_ID.Valid {
-	//		connInfo.Collection_ID =
-	//	}
-	//}
 	log.Println("查询结果：", connInfos)
 	// 如果你需要将 connInfos 中的元素转换为指针
 	connInfoPointers := make([]*ConnInfo, len(connInfos))
-	for i, ci := range connInfos {
-		connInfoPointers[i] = &ci
+	for i := range connInfos {
+		connInfoPointers[i] = &connInfos[i]
 	}
+	log.Println("查询结果：", connInfoPointers)
 	return connInfoPointers
 }

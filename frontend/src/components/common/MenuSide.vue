@@ -56,7 +56,7 @@ const getMenuTitle = (id: string):string => {
   .left-side-menu {
     width: 40px;
     min-height: 100vh;
-    border-right-color: gray;
+    border-right-color: #e6e6e6;
     border-right-width: 1px;
   }
 </style>
