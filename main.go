@@ -30,9 +30,8 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 245, G: 245, B: 245, A: 100},
+		BackgroundColour: &options.RGBA{R: 245, G: 245, B: 245, A: 255},
 		Bind: []interface{}{
-			app,
 			collectionService,
 		},
 	})

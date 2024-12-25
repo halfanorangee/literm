@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
@@ -49,12 +48,3 @@ func (a *App) startup() error {
 	log.Println("Database initialized successfully.")
 	return nil
 }
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
-//func getConnInfos() []goFile.ConnInfo {
-//	return goFile.QueryConnInfo()
-//}

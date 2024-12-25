@@ -1,37 +1,35 @@
 <template>
   <div class="wrapper">
     <div class="collection-list-side">
-      <div class="collection-line-class">
+      <div class="head-line">
         <span>
           集合列表
+        </span>
         <el-button style="border-width: 0; background: none; float: right" circle >
           <el-icon><CirclePlusFilled /></el-icon>
         </el-button>
-        </span>
       </div>
-      <el-menu  id="collection-content-id">
+      <el-menu>
         <template v-for="connInfo in connInfos">
-          <el-menu-item :index="connInfo.ID">
-            <span>
-
+          <el-menu-item :index="connInfo.ID" class="menu-item">
+            <span class="span-line">
+              <el-icon><Connection /></el-icon>
+              {{ connInfo.ConnName }}
             </span>
-            <el-icon><Connection /></el-icon>
-            {{ connInfo.ConnName }}
-            <el-popover
-                placement="bottom"
-                title="Title"
-                :width="200"
-                trigger="click"
-                content="this is content, this is content, this is content"
-            >
-              <template #reference>
-                <el-button class="optin-button" style="border-width: 0; float: right" >
+            <el-button class="optin-button" style="border-width: 0; float: right" >
+              <el-popover
+                  placement="bottom"
+                  title="Title"
+                  :width="200"
+                  trigger="click"
+                  content="this is content, this is content, this is content"
+              >
+                <template #reference>
                   <el-icon><MoreFilled /></el-icon>
-                </el-button>
-              </template>
-            </el-popover>
+                </template>
+              </el-popover>
+            </el-button>
           </el-menu-item>
-
         </template>
       </el-menu>
     </div>
@@ -71,11 +69,30 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-.collection-line-class {
+.head-line {
   flex-grow: 1;
   height: 40px;
   line-height: 40px;
   padding-left: 10px;
   border-bottom: 1px solid #e6e6e6;
+}
+
+.menu-item {
+  height: 40px;
+  padding: 0 !important;
+  border-width: 0 !important;
+  width: 100%;
+}
+
+.span-line {
+  float: left;
+  width: 100%;
+}
+
+.optin-button {
+  border-width: 0;
+  width: 20px;
+  height: 20px;
+  float: right;
 }
 </style>
