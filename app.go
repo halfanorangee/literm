@@ -26,7 +26,7 @@ func (a *App) startup() error {
 	defer a.db.Close()
 
 	// 创建示例表
-	createTableQuery := `
+	createConnInfo := `
 			create table if not exists conn_info
 		(
 			id            INTEGER
@@ -40,7 +40,20 @@ func (a *App) startup() error {
 			collection_id INTEGER
 		);
 	`
-	_, err = a.db.Exec(createTableQuery)
+	_, err = a.db.Exec(createConnInfo)
+	if err != nil {
+		return err
+	}
+
+	createCollection := `
+		create table if not exists conn_collection
+		(
+			id            INTEGER
+				primary key autoincrement,
+			collection_name TEXT
+		);
+	`
+	_, err = a.db.Exec(createCollection)
 	if err != nil {
 		return err
 	}

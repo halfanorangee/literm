@@ -48,15 +48,24 @@ const getMenuTitle = (id: string):string => {
   }
 
   .menu-item {
-    height: 40px;
-    padding-left: 7px !important;
-    padding-right: 33px;
+    height: 30px;
+    padding-left: 2px !important;
+    padding-right: 28px;
+    margin: 5px;
+    border-radius: 5px;
+    color: var(--cust-font-icon-defualt-color);
+  }
+  .menu-item.is-active {
+    background-color: var(--el-menu-hover-bg-color);
   }
 
   .left-side-menu {
+    display: flex;
+    flex-direction: column;
     width: 40px;
     min-height: 100vh;
-    border-right-color: #e6e6e6;
+    margin : 0;
+    border-right-color: var(--cust-border-defualt-color);
     border-right-width: 1px;
   }
 </style>

@@ -4,14 +4,16 @@ import (
 	"database/sql"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
+	"literm/goFile/types"
 	"os"
 )
 
-type CollectionService struct{}
+type CollectionService struct {
+}
 
 type ConnCollection struct {
 	ID             int16  `db:"id"`
-	CollectionName string `db:"collection"`
+	CollectionName string `db:"collection_name"`
 }
 
 type ConnInfo struct {
@@ -36,7 +38,30 @@ func init() {
 	log.SetOutput(os.Stdout)
 }
 
-func (s *CollectionService) QueryConnInfos() []*ConnInfo {
+func (s *CollectionService) QueryCollections() []*ConnCollection {
+	var err error
+	db, err := sqlx.Connect("sqlite3", "./literm")
+	if err != nil {
+		log.Println(err)
+	}
+	defer db.Close()
+
+	var collections []ConnCollection
+	sqlQuery := `select * from conn_collection;`
+	err = db.Select(&collections, sqlQuery)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("查询结果：", collections)
+	collectionPointer := make([]*ConnCollection, len(collections))
+	for i := range collections {
+		collectionPointer[i] = &collections[i]
+	}
+	log.Println("查询结果：", collectionPointer)
+	return collectionPointer
+}
+
+func (s *CollectionService) QueryConnInfos(collectionId int16) []*ConnInfo {
 	var err error
 	db, err := sqlx.Connect("sqlite3", "./literm")
 	if err != nil {
@@ -45,8 +70,8 @@ func (s *CollectionService) QueryConnInfos() []*ConnInfo {
 	defer db.Close()
 
 	var connInfos []ConnInfo
-	sqlQuery := `select * from conn_info;`
-	err = db.Select(&connInfos, sqlQuery)
+	sqlQuery := `select * from conn_info where collection_id = ?;`
+	err = db.Select(&connInfos, sqlQuery, collectionId)
 	if err != nil {
 		log.Println(err)
 	}
@@ -58,4 +83,37 @@ func (s *CollectionService) QueryConnInfos() []*ConnInfo {
 	}
 	log.Println("查询结果：", connInfoPointers)
 	return connInfoPointers
+}
+
+func (s *CollectionService) InsertCollection(collectionName string) *types.Response {
+	var err error
+	db, err := sqlx.Connect("sqlite3", "./literm")
+	if err != nil {
+		log.Println(err)
+	}
+	defer db.Close()
+
+	var ids []int16
+	sqlQuery := `select id from conn_collection order by id desc limit 1;`
+	err = db.Select(&ids, sqlQuery)
+	if err != nil {
+		log.Println(err)
+	}
+	var id int16
+	if ids != nil {
+		id = ids[0]
+	}
+	log.Println("最大id为：", id)
+	id++
+
+	// 插入数据
+	sqlInsert := `insert into conn_collection(collection_name) values (?);`
+	_, err = db.Exec(sqlInsert, collectionName)
+	if err != nil {
+		log.Println(err)
+	}
+	return &types.Response{
+		ResponseCode: 200,
+		ResponseMsg:  "插入成功",
+	}
 }

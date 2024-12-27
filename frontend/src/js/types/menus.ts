@@ -10,7 +10,7 @@ export const menuInfo: Menus[] = [
         id: '0',
         title: '连接集合',
         index: '/collections',
-        icon: 'Collection',
+        icon: 'Folder',
     },
     {
         id: '1',

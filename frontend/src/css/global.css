@@ -1,7 +1,38 @@
+
 body {
     margin: 0;
 }
 
 :root {
-    --el-menu-hover-bg-color: var(--el-border-color-dark);
+    --cust-border-defualt-color: #e6e6e6;
+    --el-menu-hover-bg-color: var(--el-color-info-light-7);
+    --cust-font-icon-defualt-color: var(--el-color-black);
+
+    --el-messagebox-title-color: var(--el-color-black);
+}
+
+
+#common-line-transition {
+    transition: background-color 0.3s ease
+}
+#common-line-transition:hover {
+    background-color: var(--el-menu-hover-bg-color)
+}
+
+
+.el-button--primary {
+    --el-button-text-color: var(--el-color-white);
+    --el-button-bg-color: var(--el-color-info);
+    --el-button-border-color: var(--el-color-info);
+    --el-button-outline-color: var(--el-color-info-light-5);
+    --el-button-active-color: var(--el-color-info-dark-2);
+    --el-button-hover-text-color: var(--el-color-white);
+    --el-button-hover-link-text-color: var(--el-color-info-light-5);
+    --el-button-hover-bg-color: var(--el-color-info-light-3);
+    --el-button-hover-border-color: var(--el-color-info-light-3);
+    --el-button-active-bg-color: var(--el-color-info-dark-2);
+    --el-button-active-border-color: var(--el-color-info-dark-2);
+    --el-button-disabled-text-color: var(--el-color-white);
+    --el-button-disabled-bg-color: var(--el-color-info-light-5);
+    --el-button-disabled-border-color: var(--el-color-info-light-5)
 }
