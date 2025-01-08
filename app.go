@@ -29,8 +29,7 @@ func (a *App) startup() error {
 	createConnInfo := `
 			create table if not exists conn_info
 		(
-			id            INTEGER
-				primary key autoincrement,
+			id            INTEGER primary key autoincrement,
 			conn_name     TEXT,
 			conn_ip       TEXT,
 			conn_port     INTEGER,

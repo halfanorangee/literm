@@ -6,10 +6,10 @@ export function InsertCollection(arg1) {
   return window['go']['service']['CollectionService']['InsertCollection'](arg1);
 }
 
-export function QueryCollections() {
-  return window['go']['service']['CollectionService']['QueryCollections']();
+export function InsertConnection(arg1) {
+  return window['go']['service']['CollectionService']['InsertConnection'](arg1);
 }
 
-export function QueryConnInfos(arg1) {
-  return window['go']['service']['CollectionService']['QueryConnInfos'](arg1);
+export function QueryAllConnectionRel() {
+  return window['go']['service']['CollectionService']['QueryAllConnectionRel']();
 }

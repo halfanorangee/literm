@@ -17,45 +17,28 @@
           </template>
         </el-dropdown>
       </div>
-      <div style="overflow-y: auto">
-      <el-menu style="border: 0!important; ">
-        <template v-for="collection in collections">
-          <el-sub-menu :index="stringIndex(collection.ID)" class="menu-item">
-            <template #title>
-            <span class="span-line" @click="queryConnInfoList(collection.ID)">
-              <el-icon><Collection /></el-icon>
-              {{ collection.CollectionName }}
-            </span>
-            </template>
-            <el-dropdown trigger="click" id="common-line-transition">
-              <el-icon  class="option-button">
-                <MoreFilled />
-              </el-icon>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item><el-icon><Edit /></el-icon>编辑</el-dropdown-item>
-                  <el-dropdown-item><el-icon><Delete /></el-icon>删除</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
 
-            <template v-for="conn in connInfos">
-            <el-menu-item-group class="menu-item">
-                  <template v-if="conn.Collection_ID.Int16 === collection.ID">
-                    <span class="span-line" id="common-line-transition">
-                      <el-icon><Connection /></el-icon>
-                      {{ conn.ConnName }}
-                    </span>
-                  </template>
-            </el-menu-item-group>
-            </template>
-
-          </el-sub-menu>
+      <el-menu>
+        <template v-for="collection in collectionRels">
+        <el-sub-menu :index="collection.ID.toString()" class="sub-menu">
+          <template #title>
+            <span><el-icon><Collection /></el-icon>
+                {{ collection.CollectionName }}</span>
+          </template>
+          <template v-for="conn in collection.ConnInfos">
+            <el-menu-item :index="collection.ID + '_' + conn.ID.toString()" class="menu-item">
+                <span class="span-line">
+                  <el-icon><Connection /></el-icon>
+                  {{ conn.ConnName }}
+                </span>
+            </el-menu-item>
+          </template>
+        </el-sub-menu>
         </template>
       </el-menu>
-      </div>
     </div>
 
+<!--新增合集弹窗-->
     <el-dialog
         v-model="newCollectionVisible"
         title="请输入集合名称"
@@ -77,38 +60,29 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {onMounted} from "vue";
-import {QueryCollections, QueryConnInfos, InsertCollection} from "../../../wailsjs/go/service/CollectionService"
-import {menuInfo} from "../../js/types/menus";
+import {InsertCollection, QueryAllConnectionRel} from "../../../wailsjs/go/service/CollectionService"
 
-const connInfos = ref([]);
-const collections = ref([]);
+const collectionRels = ref([]);
 const newCollectionVisible = ref(false);
 const newCollectionName = ref("");
 
-//获取string类型index
-const stringIndex = (index: number) => {
-  return index.toString();
-}
-
-//查询合集列表
-const queryCollectionList = async () => {
-  try {
-    collections.value = await QueryCollections();
-    console.log("查询完成:" + collections.value)
-  } catch (error) {
-    console.error('发生错误', error);
-  }
-}
 //初始页面加载
 onMounted(async () => {
   try {
-    collections.value = await QueryCollections();
-    console.log("查询完成:" + collections.value)
+    collectionRels.value = await QueryAllConnectionRel();
   } catch (error) {
     console.error('发生错误', error);
   }
 });
-
+//查询合集列表
+const queryCollectionList = async () => {
+  try {
+    collectionRels.value = await QueryAllConnectionRel();
+    console.log("查询完成:" + collectionRels.value)
+  } catch (error) {
+    console.error('发生错误', error);
+  }
+}
 //创建集合
 const createCollection = async () => {
   try {
@@ -119,17 +93,6 @@ const createCollection = async () => {
       newCollectionName.value = "";
       await queryCollectionList();
     }
-  } catch (error) {
-    console.error('发生错误', error);
-  }
-}
-
-//查询连接信息列表
-const queryConnInfoList = async (collectionId: number) => {
-  try {
-    connInfos.value = await QueryConnInfos(collectionId);
-    console.log("查询连接信息:")
-    console.log(connInfos.value)
   } catch (error) {
     console.error('发生错误', error);
   }
@@ -154,6 +117,11 @@ const queryConnInfoList = async (collectionId: number) => {
   line-height: 40px;
   padding-left: 10px;
   border-bottom: 1px solid var(--cust-border-defualt-color);
+}
+
+.sub-menu {
+  display: block;
+  overflow: visible;
 }
 
 .menu-item {

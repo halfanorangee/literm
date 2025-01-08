@@ -2,29 +2,49 @@ package service
 
 import (
 	"database/sql"
-	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"literm/goFile/types"
 	"os"
 )
 
 type CollectionService struct {
+	db *gorm.DB
 }
 
-type ConnCollection struct {
-	ID             int16  `db:"id"`
+type Collection struct {
+	gorm.Model
+	ID             int64  `db:"id"`
 	CollectionName string `db:"collection_name"`
 }
-
 type ConnInfo struct {
-	ID            int16          `db:"id"`
-	Collection_ID sql.NullInt16  `db:"collection_id"`
-	ConnName      string         `db:"conn_name"`
-	IP            string         `db:"conn_ip"`
-	Port          int16          `db:"conn_port"`
-	UserName      sql.NullString `db:"user_name"`
-	Password      sql.NullString `db:"password"`
-	Key           sql.NullString `db:"key"`
+	gorm.Model
+	ID            int64  `db:"id"`
+	Collection_ID int64  `db:"collection_id"`
+	ConnName      string `db:"conn_name"`
+	IP            string `db:"conn_ip"`
+	Port          string `db:"conn_port"`
+	UserName      string `db:"user_name"`
+	Password      string `db:"password"`
+	Key           string `db:"key"`
+}
+
+type CollectionConnRel struct {
+	ID             int64  `db:"id"`
+	CollectionName string `db:"collection_name"`
+	ConnInfos      []*ConnInfo
+}
+type CollectionAndConnInfo struct {
+	CollectionName string
+	ConnId         sql.NullInt64 `gorm:"column:id"`
+	CollectionId   int64
+	ConnName       sql.NullString
+	ConnIP         sql.NullString `gorm:"column:"`
+	ConnPort       sql.NullString
+	UserName       sql.NullString
+	Password       sql.NullString
+	Key            sql.NullString
 }
 
 func init() {
@@ -38,79 +58,99 @@ func init() {
 	log.SetOutput(os.Stdout)
 }
 
-func (s *CollectionService) QueryCollections() []*ConnCollection {
+// 查询所有连接集合及对应的连接信息
+func (s *CollectionService) QueryAllConnectionRel() []*CollectionConnRel {
 	var err error
-	db, err := sqlx.Connect("sqlite3", "./literm")
+	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
+	var connAllInfos []CollectionAndConnInfo
+	s.db.Debug().Table("conn_collection").Joins("left join conn_info on conn_collection.id = conn_info.collection_id").
+		Select("conn_collection.collection_name,conn_info.id,conn_collection.id as collection_id,conn_info.conn_name,conn_info.conn_ip,conn_info.conn_port,conn_info.user_name,conn_info.password,conn_info.key").
+		Unscoped().
+		Scan(&connAllInfos)
+	if err != nil {
+		log.Println(err)
+	}
 
-	var collections []ConnCollection
-	sqlQuery := `select * from conn_collection;`
-	err = db.Select(&collections, sqlQuery)
-	if err != nil {
-		log.Println(err)
+	//数据库查询结果转成map，map转成一对多的对象传递给前端
+	connMap := make(map[int64][]CollectionAndConnInfo)
+	for _, connInfo := range connAllInfos {
+		connMap[connInfo.CollectionId] = append(connMap[connInfo.CollectionId], connInfo)
 	}
-	log.Println("查询结果：", collections)
-	collectionPointer := make([]*ConnCollection, len(collections))
-	for i := range collections {
-		collectionPointer[i] = &collections[i]
+	rels := make([]*CollectionConnRel, 0)
+	for _, connInfos := range connMap {
+		rel := &CollectionConnRel{
+			ID:             connInfos[0].CollectionId,
+			CollectionName: connInfos[0].CollectionName,
+			ConnInfos:      make([]*ConnInfo, 0),
+		}
+
+		for _, connInfo := range connInfos {
+			if connInfo.ConnId.Valid {
+				info := &ConnInfo{
+					ID:       connInfo.ConnId.Int64,
+					ConnName: connInfo.ConnName.String,
+					IP:       connInfo.ConnIP.String,
+					Port:     connInfo.ConnPort.String,
+					UserName: connInfo.UserName.String,
+					Password: connInfo.Password.String,
+					Key:      connInfo.Key.String,
+				}
+				rel.ConnInfos = append(rel.ConnInfos, info)
+			}
+		}
+		rels = append(rels, rel)
 	}
-	log.Println("查询结果：", collectionPointer)
-	return collectionPointer
+	return rels
 }
 
-func (s *CollectionService) QueryConnInfos(collectionId int16) []*ConnInfo {
-	var err error
-	db, err := sqlx.Connect("sqlite3", "./literm")
-	if err != nil {
-		log.Println(err)
-	}
-	defer db.Close()
-
-	var connInfos []ConnInfo
-	sqlQuery := `select * from conn_info where collection_id = ?;`
-	err = db.Select(&connInfos, sqlQuery, collectionId)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println("查询结果：", connInfos)
-	// 如果你需要将 connInfos 中的元素转换为指针
-	connInfoPointers := make([]*ConnInfo, len(connInfos))
-	for i := range connInfos {
-		connInfoPointers[i] = &connInfos[i]
-	}
-	log.Println("查询结果：", connInfoPointers)
-	return connInfoPointers
-}
-
+// 插入新的连接集合
 func (s *CollectionService) InsertCollection(collectionName string) *types.Response {
 	var err error
-	db, err := sqlx.Connect("sqlite3", "./literm")
+	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
-
-	var ids []int16
-	sqlQuery := `select id from conn_collection order by id desc limit 1;`
-	err = db.Select(&ids, sqlQuery)
-	if err != nil {
-		log.Println(err)
-	}
-	var id int16
-	if ids != nil {
-		id = ids[0]
-	}
-	log.Println("最大id为：", id)
-	id++
 
 	// 插入数据
-	sqlInsert := `insert into conn_collection(collection_name) values (?);`
-	_, err = db.Exec(sqlInsert, collectionName)
+	collection := Collection{CollectionName: collectionName}
+	result := s.db.Create(&collection)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return &types.Response{
+			ResponseCode: 500,
+			ResponseMsg:  "插入失败",
+		}
+	}
+	return &types.Response{
+		ResponseCode: 200,
+		ResponseMsg:  "插入成功",
+	}
+}
+
+func (s *CollectionService) InsertConnection(info ConnInfo) *types.Response {
+	var err error
+	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
 	if err != nil {
 		log.Println(err)
+	}
+	insertInfo := ConnInfo{}
+	insertInfo.ConnName = info.ConnName
+	insertInfo.IP = info.IP
+	insertInfo.Port = info.Port
+	insertInfo.UserName = info.UserName
+	insertInfo.Password = info.Password
+	insertInfo.Key = info.Key
+	result := s.db.Create(&insertInfo)
+
+	if result.Error != nil {
+		log.Println(result.Error)
+		return &types.Response{
+			ResponseCode: 500,
+			ResponseMsg:  "插入失败",
+		}
 	}
 	return &types.Response{
 		ResponseCode: 200,

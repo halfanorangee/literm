@@ -5,6 +5,6 @@ import {service} from '../models';
 
 export function InsertCollection(arg1:string):Promise<types.Response>;
 
-export function QueryCollections():Promise<Array<service.ConnCollection>>;
+export function InsertConnection(arg1:service.ConnInfo):Promise<types.Response>;
 
-export function QueryConnInfos(arg1:number):Promise<Array<service.ConnInfo>>;
+export function QueryAllConnectionRel():Promise<Array<service.CollectionConnRel>>;
