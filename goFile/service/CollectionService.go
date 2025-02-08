@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"literm/goFile/types"
 	"os"
+	"sort"
 )
 
 type CollectionService struct {
@@ -14,12 +15,10 @@ type CollectionService struct {
 }
 
 type Collection struct {
-	gorm.Model
 	ID             int64  `db:"id"`
 	CollectionName string `db:"collection_name"`
 }
 type ConnInfo struct {
-	gorm.Model
 	ID            int64  `db:"id"`
 	Collection_ID int64  `db:"collection_id"`
 	ConnName      string `db:"conn_name"`
@@ -27,7 +26,8 @@ type ConnInfo struct {
 	Port          string `db:"conn_port"`
 	UserName      string `db:"user_name"`
 	Password      string `db:"password"`
-	Key           string `db:"key"`
+	AuthKey       string `db:"key"`
+	AuthType      string `db:"auth_type"`
 }
 
 type CollectionConnRel struct {
@@ -44,7 +44,8 @@ type CollectionAndConnInfo struct {
 	ConnPort       sql.NullString
 	UserName       sql.NullString
 	Password       sql.NullString
-	Key            sql.NullString
+	AuthKey        sql.NullString
+	AuthType       sql.NullString
 }
 
 func init() {
@@ -66,7 +67,7 @@ func (s *CollectionService) QueryAllConnectionRel() []*CollectionConnRel {
 		log.Println(err)
 	}
 	var connAllInfos []CollectionAndConnInfo
-	s.db.Debug().Table("conn_collection").Joins("left join conn_info on conn_collection.id = conn_info.collection_id").
+	s.db.Table("conn_collection").Joins("left join conn_info on conn_collection.id = conn_info.collection_id").
 		Select("conn_collection.collection_name,conn_info.id,conn_collection.id as collection_id,conn_info.conn_name,conn_info.conn_ip,conn_info.conn_port,conn_info.user_name,conn_info.password,conn_info.key").
 		Unscoped().
 		Scan(&connAllInfos)
@@ -80,13 +81,19 @@ func (s *CollectionService) QueryAllConnectionRel() []*CollectionConnRel {
 		connMap[connInfo.CollectionId] = append(connMap[connInfo.CollectionId], connInfo)
 	}
 	rels := make([]*CollectionConnRel, 0)
+	// 定义排序函数
+	sortByCollID := func(i, j int) bool {
+		return rels[i].ID < rels[j].ID
+	}
 	for _, connInfos := range connMap {
 		rel := &CollectionConnRel{
 			ID:             connInfos[0].CollectionId,
 			CollectionName: connInfos[0].CollectionName,
 			ConnInfos:      make([]*ConnInfo, 0),
 		}
-
+		sortByConnID := func(i, j int) bool {
+			return rel.ConnInfos[i].ID < rel.ConnInfos[j].ID
+		}
 		for _, connInfo := range connInfos {
 			if connInfo.ConnId.Valid {
 				info := &ConnInfo{
@@ -96,13 +103,15 @@ func (s *CollectionService) QueryAllConnectionRel() []*CollectionConnRel {
 					Port:     connInfo.ConnPort.String,
 					UserName: connInfo.UserName.String,
 					Password: connInfo.Password.String,
-					Key:      connInfo.Key.String,
+					AuthKey:  connInfo.AuthKey.String,
 				}
 				rel.ConnInfos = append(rel.ConnInfos, info)
 			}
 		}
+		sort.Slice(rel.ConnInfos, sortByConnID)
 		rels = append(rels, rel)
 	}
+	sort.Slice(rels, sortByCollID)
 	return rels
 }
 
@@ -116,20 +125,21 @@ func (s *CollectionService) InsertCollection(collectionName string) *types.Respo
 
 	// 插入数据
 	collection := Collection{CollectionName: collectionName}
-	result := s.db.Create(&collection)
+	result := s.db.Table("conn_collection").Omit("CreatedAt", "UpdatedAt", "DeletedAt").Create(&collection)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return &types.Response{
-			ResponseCode: 500,
+			ResponseCode: "999",
 			ResponseMsg:  "插入失败",
 		}
 	}
 	return &types.Response{
-		ResponseCode: 200,
+		ResponseCode: "000",
 		ResponseMsg:  "插入成功",
 	}
 }
 
+// 插入新的连接信息
 func (s *CollectionService) InsertConnection(info ConnInfo) *types.Response {
 	var err error
 	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
@@ -142,18 +152,60 @@ func (s *CollectionService) InsertConnection(info ConnInfo) *types.Response {
 	insertInfo.Port = info.Port
 	insertInfo.UserName = info.UserName
 	insertInfo.Password = info.Password
-	insertInfo.Key = info.Key
+	insertInfo.AuthKey = info.AuthKey
 	result := s.db.Create(&insertInfo)
 
 	if result.Error != nil {
 		log.Println(result.Error)
 		return &types.Response{
-			ResponseCode: 500,
+			ResponseCode: "999",
 			ResponseMsg:  "插入失败",
 		}
 	}
 	return &types.Response{
-		ResponseCode: 200,
+		ResponseCode: "000",
 		ResponseMsg:  "插入成功",
+	}
+}
+
+// 删除连接集合
+func (s *CollectionService) DeleteCollection(collectionId int64) *types.Response {
+	var err error
+	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
+	if err != nil {
+		log.Println(err)
+	}
+	result := s.db.Table("conn_collection").Where("id = ?", collectionId).Omit("CreatedAt", "UpdatedAt", "DeletedAt").Delete(&Collection{})
+	if result.Error != nil {
+		log.Println(result.Error)
+		return &types.Response{
+			ResponseCode: "999",
+			ResponseMsg:  "删除失败",
+		}
+	}
+	return &types.Response{
+		ResponseCode: "000",
+		ResponseMsg:  "删除成功",
+	}
+}
+
+// 删除连接集合
+func (s *CollectionService) DeleteConnection(connectionId int64) *types.Response {
+	var err error
+	s.db, err = gorm.Open(sqlite.Open("./literm"), &gorm.Config{})
+	if err != nil {
+		log.Println(err)
+	}
+	result := s.db.Table("conn_info").Where("id = ?", connectionId).Omit("CreatedAt", "UpdatedAt", "DeletedAt").Delete(&ConnInfo{})
+	if result.Error != nil {
+		log.Println(result.Error)
+		return &types.Response{
+			ResponseCode: "999",
+			ResponseMsg:  "删除失败",
+		}
+	}
+	return &types.Response{
+		ResponseCode: "000",
+		ResponseMsg:  "删除成功",
 	}
 }

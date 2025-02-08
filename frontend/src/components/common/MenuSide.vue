@@ -5,16 +5,16 @@
     router
     >
       <template v-for="menu in menuInfo">
+        <el-tooltip :content="getMenuTitle(menu.id)"
+                    :hide-after="0"
+                    placement="right-end"
+        >
         <el-menu-item class="menu-item" :index="menu.index">
-          <el-tooltip :content="getMenuTitle(menu.id)"
-                      :hide-after="0"
-                       placement="right-end"
-          >
-            <el-icon class="left-side-icon">
-              <component :is="menu.icon"></component>
-            </el-icon>
-          </el-tooltip>
+              <el-icon class="left-side-icon">
+                <component :is="menu.icon"></component>
+              </el-icon>
         </el-menu-item>
+        </el-tooltip>
       </template>
     </el-menu>
   </div>

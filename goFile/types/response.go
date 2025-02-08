@@ -1,6 +1,7 @@
 package types
 
 type Response struct {
-	ResponseCode int16
+	ResponseCode string
 	ResponseMsg  string
+	ResponseInfo string
 }

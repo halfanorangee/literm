@@ -1,5 +1,7 @@
 <template>
-  <h5>设置界面，待开发。。。</h5>
+  <div>
+    <h5>新建FTP连接</h5>
+  </div>
 </template>
 
 <script setup>

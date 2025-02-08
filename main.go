@@ -17,6 +17,7 @@ func main() {
 	app := &App{}
 	log.Println("初始化CollectionService")
 	collectionService := &service.CollectionService{}
+	shellService := &service.ShellService{}
 
 	err := app.startup()
 	if err != nil {
@@ -24,15 +25,15 @@ func main() {
 	}
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:  "literm",
-		Width:  1024,
-		Height: 768,
+		Title:            "literm",
+		WindowStartState: options.Maximised,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 245, G: 245, B: 245, A: 255},
 		Bind: []interface{}{
 			collectionService,
+			shellService,
 		},
 	})
 

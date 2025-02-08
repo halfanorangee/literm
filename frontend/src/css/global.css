@@ -3,14 +3,6 @@ body {
     margin: 0;
 }
 
-:root {
-    --cust-border-defualt-color: #e6e6e6;
-    --el-menu-hover-bg-color: var(--el-color-info-light-7);
-    --cust-font-icon-defualt-color: var(--el-color-black);
-
-    --el-messagebox-title-color: var(--el-color-black);
-}
-
 
 #common-line-transition {
     transition: background-color 0.3s ease
@@ -35,4 +27,12 @@ body {
     --el-button-disabled-text-color: var(--el-color-white);
     --el-button-disabled-bg-color: var(--el-color-info-light-5);
     --el-button-disabled-border-color: var(--el-color-info-light-5)
+}
+
+:root {
+    --cust-border-defualt-color: #e6e6e6;
+    --el-menu-hover-bg-color: var(--el-color-info-light-7);
+    --cust-font-icon-defualt-color: var(--el-color-black);
+    --cust-bg-defualt-color: var(--el-color-white);
+    --el-messagebox-title-color: var(--el-color-black);
 }

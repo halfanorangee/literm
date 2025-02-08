@@ -3,6 +3,10 @@
 import {types} from '../models';
 import {service} from '../models';
 
+export function DeleteCollection(arg1:number):Promise<types.Response>;
+
+export function DeleteConnection(arg1:number):Promise<types.Response>;
+
 export function InsertCollection(arg1:string):Promise<types.Response>;
 
 export function InsertConnection(arg1:service.ConnInfo):Promise<types.Response>;

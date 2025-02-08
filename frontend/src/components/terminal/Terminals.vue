@@ -1,10 +1,12 @@
+<template>
+  <div class="terminals">
+    <h5>终端界面，待开发。。。</h5>
+  </div>
+</template>
+
 <script setup>
 
 </script>
-
-<template>
-<h5>hasiAHSIHighs</h5>
-</template>
 
 <style scoped>
 
